@@ -1,0 +1,64 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "EnhancedInputSubsystemInterface.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/Pawn.h"
+#include "ControlledSoul.generated.h"
+
+UCLASS()
+class THATGAMEJAMUEPROJECT_API AControlledSoul : public ACharacter
+{
+	GENERATED_BODY()
+
+public:
+	// Sets default values for this pawn's properties
+	AControlledSoul();
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	UEnhancedInputComponent* enhancedInputComponent;
+
+	// Input 
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputMappingContext* controlledSoulMappingContext;
+
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* horizontalMovementAction;
+
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* JumpAction; 
+	
+	UFUNCTION()
+	virtual void SetupMappingContext(APlayerController* currentController);
+
+	UFUNCTION()
+	virtual void SetupBindActions(APlayerController* currentController);
+
+	UFUNCTION()
+	virtual void MoveHorizontally(const FInputActionValue& value);
+	
+
+
+	//Camera 
+	UPROPERTY(VisibleAnywhere, Category="Camera")
+	USceneComponent* camera;
+
+	UPROPERTY(EditAnywhere,Category="Camera")
+	FVector cameraOffset;
+
+
+	
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+};
