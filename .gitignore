@@ -45,5 +45,8 @@
 
 #################################
 # Miscellaneous Generated Files #
+# Precompiled Headers
+*.gch
+*.pch
 #################################
 # ADD AS NEED BE
