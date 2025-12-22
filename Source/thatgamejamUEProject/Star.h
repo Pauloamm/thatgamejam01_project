@@ -23,10 +23,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	virtual void ChangeStarPosition(const FInputActionValue& value);
+	virtual void ChangeStarPosition(float DeltaTime);
 
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	float starVelocity;
+	//UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	//float starVelocity;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	APlayerController* playerController;
@@ -37,8 +37,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="Input")
 	UInputAction* moveMouseAction;
 
+	UPROPERTY(VisibleAnywhere, Category="Parent")
+	AActor* currentCenterActor;
+	UPROPERTY(EditAnywhere, Category="Star Max Radius")
+	float maxDistanceFromParent;
+	UPROPERTY(EditAnywhere, Category="Star Speed")
+	float starSpeed;
+	UPROPERTY(EditAnywhere, Category="Star Speed")
+	float arrivedRadius;
 
-	
 	FVector* mousePosition;
 	
 public:	

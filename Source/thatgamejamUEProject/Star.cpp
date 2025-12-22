@@ -26,26 +26,84 @@ void AStar::BeginPlay()
 	UE_LOG(LogTemp, Display, TEXT("IS ENHANCED INPUT NULL??: %hhd"), (enhancedInputComponent==NULL));
 
 	
-	enhancedInputComponent->BindAction(moveMouseAction,ETriggerEvent::Triggered, this, &AStar::ChangeStarPosition);
+	//enhancedInputComponent->BindAction(moveMouseAction,ETriggerEvent::Triggered, this, &AStar::ChangeStarPosition);
+
+	currentCenterActor = GetAttachParentActor();
+	// This works! Your original approach was correct
+	currentCenterActor = GetAttachParentActor();
+    
+	if (currentCenterActor)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Star center set to: %s"), *currentCenterActor->GetName());
+	}
 }
 
-void AStar::ChangeStarPosition(const FInputActionValue& Value)
+void AStar::ChangeStarPosition(float DeltaTime)
 {
+	FVector currentCenterActorLocation = currentCenterActor->GetActorLocation();
+
 	
-	FVector2D mouseInputValeu = Value.Get<FVector2D>();
+	FVector2D mouseInputValue;
+	// mouseInputValue = Value.Get<FVector2D>();
 	FVector currentPosition = this->GetActorLocation();
 	
-	//playerController->GetMousePosition(mouseInputValeu.X, mouseInputValeu.Y);
-	UE_LOG(LogTemp, Display, TEXT("The vector value is: %s"), *mouseInputValeu.ToString());
+	playerController->GetMousePosition(mouseInputValue.X, mouseInputValue.Y);
+	UE_LOG(LogTemp, Display, TEXT("MOUSE POSITION IN SCREEN: %s"), *mouseInputValue.ToString());
+
+	FVector worldLocation, worldDirection;
+	playerController->DeprojectScreenPositionToWorld(mouseInputValue.X, mouseInputValue.Y, worldLocation, worldDirection);
+
+	// Ray-plane intersection
+	// We want to find where the ray hits the plane at X = center.X
+	// Ray equation: Point = worldLocation + worldDirection * t
+	// Plane equation: X = center.X
+	// Solve for t: worldLocation.X + worldDirection.X * t = center.X
+    
+	float t = (currentCenterActorLocation.X - worldLocation.X) / worldDirection.X;
+    
+	// Calculate the intersection point
+	FVector intersectionPoint = worldLocation + (worldDirection * t);
+    
+	// Now intersectionPoint.Y and intersectionPoint.Z are the actual world coordinates
+	FVector actualWorldLocation = FVector(currentCenterActorLocation.X, intersectionPoint.Y, intersectionPoint.Z);
+    
+
+
+
 
 	
-	
-	FVector newPosition = FVector(currentPosition.X,
-		currentPosition.Y + (mouseInputValeu.X*starVelocity),
-		currentPosition.Z -(mouseInputValeu.Y*starVelocity));
-	
+	UE_LOG(LogTemp, Display, TEXT("CONVERTED TO WORLD POSITION: %s"), *worldLocation.ToString());
 
-	SetActorLocation(newPosition);
+
+	FVector desiredPosition = FVector(
+	   currentCenterActorLocation.X, // Keep same X depth as center
+	   actualWorldLocation.Y, // Use mouse world Y
+	   actualWorldLocation.Z  // Use mouse world Z
+   );
+	UE_LOG(LogTemp, Display, TEXT("DESIRED POSITION: %s"), *worldLocation.ToString());
+
+	FVector directionToMouse = desiredPosition - currentCenterActorLocation;
+
+	//If mouse is further than radius set max distance
+	float distanceToMove = directionToMouse.Size(); 
+	if (directionToMouse.Size() > maxDistanceFromParent) distanceToMove = maxDistanceFromParent;
+	
+	directionToMouse = directionToMouse.GetSafeNormal() * distanceToMove;
+	
+		FVector finalPosition = FVector(
+			currentCenterActorLocation.X,
+			currentCenterActorLocation.Y + directionToMouse.Y,
+			currentCenterActorLocation.Z + directionToMouse.Z
+		);
+	
+    FVector thisFrameMoveDirection = finalPosition-GetActorLocation();
+	
+	if (thisFrameMoveDirection.Size() <arrivedRadius) return;// if clsoe enough dont process anything else, no need to move this frame
+	
+	thisFrameMoveDirection.Normalize();
+	thisFrameMoveDirection = thisFrameMoveDirection*DeltaTime*starSpeed;
+	SetActorLocation(GetActorLocation() + thisFrameMoveDirection);
+	
 }
 
 
@@ -53,6 +111,6 @@ void AStar::ChangeStarPosition(const FInputActionValue& Value)
 void AStar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	ChangeStarPosition(DeltaTime);
 }
 
