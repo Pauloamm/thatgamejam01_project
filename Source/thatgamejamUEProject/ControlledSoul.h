@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "EnhancedInputSubsystemInterface.h"
+#include "Pushable.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Pawn.h"
 #include "ControlledSoul.generated.h"
 
 UCLASS()
-class THATGAMEJAMUEPROJECT_API AControlledSoul : public ACharacter
+class THATGAMEJAMUEPROJECT_API AControlledSoul : public ACharacter, public IPushable
 {
 	GENERATED_BODY()
 
@@ -61,4 +62,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+private:
+	void OnPushed_Implementation(FVector PushDirection, float Force) override;
+
+	UPROPERTY(EditAnywhere, Category="Speed")
+	FVector Velocity;
+
+	UPrimitiveComponent* rootPhysicsComponent;
 };

@@ -3,6 +3,7 @@
 
 #include "Star.h"
 
+#include "BaseAbility.h"
 #include "EnhancedInputComponent.h"
 #include "MaterialHLSLTree.h"
 #include "Kismet/GameplayStatics.h"
@@ -19,6 +20,7 @@ AStar::AStar()
 void AStar::BeginPlay()
 {
 	Super::BeginPlay();
+
 	playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 	enhancedInputComponent = (UEnhancedInputComponent*)playerController->InputComponent;
@@ -26,10 +28,16 @@ void AStar::BeginPlay()
 	UE_LOG(LogTemp, Display, TEXT("IS ENHANCED INPUT NULL??: %hhd"), (enhancedInputComponent==NULL));
 
 	
-	//enhancedInputComponent->BindAction(moveMouseAction,ETriggerEvent::Triggered, this, &AStar::ChangeStarPosition);
+	GetComponents<UBaseAbility>(abilities);
 
-	currentCenterActor = GetAttachParentActor();
-	// This works! Your original approach was correct
+	for (UBaseAbility* ability: abilities)
+	{
+
+		UE_LOG(LogTemp, Display, TEXT("ABILITY FOUND: %s"), *ability->Execute_GetAbilityName(ability).ToString());
+
+		enhancedInputComponent->BindAction(ability->GetBindedInputAction(),ETriggerEvent::Triggered,ability, &UBaseAbility::ActivateAbility_Implementation);
+	}
+
 	currentCenterActor = GetAttachParentActor();
     
 	if (currentCenterActor)
@@ -48,7 +56,7 @@ void AStar::ChangeStarPosition(float DeltaTime)
 	FVector currentPosition = this->GetActorLocation();
 	
 	playerController->GetMousePosition(mouseInputValue.X, mouseInputValue.Y);
-	UE_LOG(LogTemp, Display, TEXT("MOUSE POSITION IN SCREEN: %s"), *mouseInputValue.ToString());
+	//UE_LOG(LogTemp, Display, TEXT("MOUSE POSITION IN SCREEN: %s"), *mouseInputValue.ToString());
 
 	FVector worldLocation, worldDirection;
 	playerController->DeprojectScreenPositionToWorld(mouseInputValue.X, mouseInputValue.Y, worldLocation, worldDirection);
@@ -72,7 +80,7 @@ void AStar::ChangeStarPosition(float DeltaTime)
 
 
 	
-	UE_LOG(LogTemp, Display, TEXT("CONVERTED TO WORLD POSITION: %s"), *worldLocation.ToString());
+	//UE_LOG(LogTemp, Display, TEXT("CONVERTED TO WORLD POSITION: %s"), *worldLocation.ToString());
 
 
 	FVector desiredPosition = FVector(
@@ -80,7 +88,7 @@ void AStar::ChangeStarPosition(float DeltaTime)
 	   actualWorldLocation.Y, // Use mouse world Y
 	   actualWorldLocation.Z  // Use mouse world Z
    );
-	UE_LOG(LogTemp, Display, TEXT("DESIRED POSITION: %s"), *worldLocation.ToString());
+	//UE_LOG(LogTemp, Display, TEXT("DESIRED POSITION: %s"), *worldLocation.ToString());
 
 	FVector directionToMouse = desiredPosition - currentCenterActorLocation;
 

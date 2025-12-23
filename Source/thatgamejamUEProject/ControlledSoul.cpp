@@ -18,7 +18,8 @@ AControlledSoul::AControlledSoul()
 void AControlledSoul::BeginPlay()
 {
 	Super::BeginPlay();
-
+	rootPhysicsComponent = Cast<UPrimitiveComponent>(this->GetRootComponent());
+	
 	camera = Cast<USceneComponent>(this->GetComponentByClass<UCameraComponent>());
 	camera->AddLocalOffset(cameraOffset);
 	
@@ -79,5 +80,27 @@ void AControlledSoul::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void AControlledSoul::OnPushed_Implementation(FVector PushDirection, float Force)
+{
+	UE_LOG(LogTemp, Display, TEXT("ControlledSoul pushed! Direction: %s, Force: %f"), 
+	*PushDirection.ToString(), Force);
+	
+	// Apply push to velocity
+	FVector PushVelocity = PushDirection * Force;
+	// For 2.5D, you might want to only push in Y-Z
+	PushVelocity.X = 0.0f;
+	DrawDebugLine(
+		GetWorld(),
+		this->GetActorLocation(),
+		this->GetActorLocation() + PushDirection,
+		FColor::Blue,
+		false,
+		5,
+		0,
+		3.0f
+	);
+	rootPhysicsComponent->AddImpulse(PushVelocity);
 }
 

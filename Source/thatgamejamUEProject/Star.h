@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseAbility.h"
 #include "InputAction.h"
 #include "GameFramework/Actor.h"
 #include "Star.generated.h"
@@ -25,8 +26,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void ChangeStarPosition(float DeltaTime);
 
-	//UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	//float starVelocity;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Abilities")
+	TArray<UBaseAbility*> abilities;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	APlayerController* playerController;
@@ -37,6 +38,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="Input")
 	UInputAction* moveMouseAction;
 
+	
 	UPROPERTY(VisibleAnywhere, Category="Parent")
 	AActor* currentCenterActor;
 	UPROPERTY(EditAnywhere, Category="Star Max Radius")
