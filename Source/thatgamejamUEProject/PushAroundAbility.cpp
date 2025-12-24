@@ -3,6 +3,7 @@
 
 #include "PushAroundAbility.h"
 
+#include "EnhancedInputComponent.h"
 #include "Pushable.h"
 
 
@@ -74,7 +75,7 @@ void UPushAroundAbility::ActivateAbility_Implementation(const FInputActionValue&
 	
 }
 
-void UPushAroundAbility::PushActor(AActor* actorToPush)
+void UPushAroundAbility::PushActor(AActor* actorToPush) const
 {
 	FVector pushDirection = actorToPush->GetActorLocation() - starActor->GetActorLocation();
 	pushDirection.Normalize();
@@ -96,5 +97,11 @@ void UPushAroundAbility::PushActor(AActor* actorToPush)
 	IPushable::Execute_OnPushed(actorToPush, pushDirection, this->PushForce);  
 
 	
+}
+
+void UPushAroundAbility::BindInput_Implementation(UEnhancedInputComponent* InputComponent)
+{
+	InputComponent->BindAction(this->activateAbilityInputAction, ETriggerEvent::Triggered,this,&UPushAroundAbility::ActivateAbility_Implementation);
+
 }
 

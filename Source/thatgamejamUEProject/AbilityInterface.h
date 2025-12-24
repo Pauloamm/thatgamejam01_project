@@ -41,4 +41,7 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Cooldown")
 	bool IsOnCooldown() const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Ability")
+	void BindInput(UEnhancedInputComponent* InputComponent);
 };

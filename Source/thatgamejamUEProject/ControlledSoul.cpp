@@ -18,7 +18,7 @@ AControlledSoul::AControlledSoul()
 void AControlledSoul::BeginPlay()
 {
 	Super::BeginPlay();
-	rootPhysicsComponent = Cast<UPrimitiveComponent>(this->GetRootComponent());
+	RootPhysicsComponent = Cast<UPrimitiveComponent>(this->GetRootComponent());
 	
 	camera = Cast<USceneComponent>(this->GetComponentByClass<UCameraComponent>());
 	camera->AddLocalOffset(cameraOffset);
@@ -101,6 +101,6 @@ void AControlledSoul::OnPushed_Implementation(FVector PushDirection, float Force
 		0,
 		3.0f
 	);
-	rootPhysicsComponent->AddImpulse(PushVelocity);
+	RootPhysicsComponent->AddImpulse(PushVelocity);
 }
 

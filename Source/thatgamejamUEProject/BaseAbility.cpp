@@ -19,6 +19,8 @@ void UBaseAbility::BeginPlay()
 	Super::BeginPlay();
 	starActor = GetOwner();
 	CurrentCooldownTimer = Cooldown;
+	RootPrimitiveComponent = Cast<UPrimitiveComponent>(starActor->GetAttachParentActor()->GetRootComponent());
+	UE_LOG(LogTemp, Warning, TEXT("ROOT COMPONENET: %s"), *RootPrimitiveComponent->GetName());
 
 	// ...
 	
@@ -37,6 +39,11 @@ void UBaseAbility::ActivateAbility_Implementation(const FInputActionValue& value
 void UBaseAbility::DeactivateAbility_Implementation()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Deactivating Ability"));
+}
+
+void UBaseAbility::BindInput_Implementation(UEnhancedInputComponent* InputComponent)
+{
+	//BASE ABILITY IS "ABSTRACT"
 }
 
 bool UBaseAbility::CanActivate_Implementation() const
@@ -66,10 +73,6 @@ void UBaseAbility::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	// ...
 }
 
-UInputAction* UBaseAbility::GetBindedInputAction()
-{
-	return this->abilityInputAction;
-}
 
 
 

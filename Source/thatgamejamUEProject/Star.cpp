@@ -35,7 +35,7 @@ void AStar::BeginPlay()
 
 		UE_LOG(LogTemp, Display, TEXT("ABILITY FOUND: %s"), *ability->Execute_GetAbilityName(ability).ToString());
 
-		enhancedInputComponent->BindAction(ability->GetBindedInputAction(),ETriggerEvent::Triggered,ability, &UBaseAbility::ActivateAbility_Implementation);
+		ability->Execute_BindInput(ability,enhancedInputComponent);
 	}
 
 	currentCenterActor = GetAttachParentActor();
@@ -45,7 +45,33 @@ void AStar::BeginPlay()
 		UE_LOG(LogTemp, Display, TEXT("Star center set to: %s"), *currentCenterActor->GetName());
 	}
 }
-
+void AStar::LockInPlace(bool bLock)
+{
+	if (bLock)
+	{
+		// Save current world location
+		LockedWorldLocation = GetActorLocation();
+		
+		// Detach from parent but keep world position
+		this->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		
+		bIsLockedInPlace = true;
+		
+		UE_LOG(LogTemp, Display, TEXT("Star locked at position: %s"), *LockedWorldLocation.ToString());
+	}
+	else
+	{
+		// Reattach to parent
+		if (currentCenterActor)
+		{
+			AttachToActor(currentCenterActor, FAttachmentTransformRules::KeepWorldTransform);
+		}
+		
+		bIsLockedInPlace = false;
+		
+		UE_LOG(LogTemp, Display, TEXT("Star unlocked and reattached"));
+	}
+}
 void AStar::ChangeStarPosition(float DeltaTime)
 {
 	FVector currentCenterActorLocation = currentCenterActor->GetActorLocation();
@@ -119,6 +145,15 @@ void AStar::ChangeStarPosition(float DeltaTime)
 void AStar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	ChangeStarPosition(DeltaTime);
+	// Only update position if NOT locked
+	if (!bIsLockedInPlace)
+	{
+		ChangeStarPosition(DeltaTime);
+	}
+	else
+	{
+		// Keep star at locked position (in case of physics interference)
+		SetActorLocation(LockedWorldLocation);
+	}
 }
 

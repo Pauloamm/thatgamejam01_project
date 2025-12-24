@@ -60,13 +60,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 private:
-	void OnPushed_Implementation(FVector PushDirection, float Force) override;
+	virtual void OnPushed_Implementation(FVector PushDirection, float Force) override;
 
 	UPROPERTY(EditAnywhere, Category="Speed")
 	FVector Velocity;
 
-	UPrimitiveComponent* rootPhysicsComponent;
+	UPrimitiveComponent* RootPhysicsComponent;
 };

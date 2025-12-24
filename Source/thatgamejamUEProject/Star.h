@@ -54,4 +54,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable, Category="Star")
+	void LockInPlace(bool bLock);
+private:
+	
+	
+	
+	bool bIsLockedInPlace = false;
+	FVector LockedWorldLocation;
+
 };

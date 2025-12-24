@@ -24,9 +24,15 @@ protected:
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	AActor* starActor;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	UPrimitiveComponent* RootPrimitiveComponent;
+
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	UInputAction* abilityInputAction;
+	UInputAction* activateAbilityInputAction;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	UInputAction* deactivateAbilityInputAction;
 	
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -50,7 +56,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	UInputAction* GetBindedInputAction();
 	virtual void ActivateAbility_Implementation(const FInputActionValue& value) override;
 	virtual void DeactivateAbility_Implementation() override;
+	virtual void BindInput_Implementation(UEnhancedInputComponent* InputComponent) override;
 };

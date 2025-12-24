@@ -14,11 +14,11 @@ class THATGAMEJAMUEPROJECT_API UPushAroundAbility : public UBaseAbility
 {
 	GENERATED_BODY()
 
-	public:
+public:
 	UPushAroundAbility();
 
 
-	protected:
+protected:
 	virtual void ActivateAbility_Implementation(const FInputActionValue& value) override;
 	virtual void DeactivateAbility_Implementation() override;
 
@@ -29,5 +29,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	float PushForce;
 
-	void PushActor(AActor* actorToPush);
+	void PushActor(AActor* actorToPush) const;
+public:
+	virtual void BindInput_Implementation(UEnhancedInputComponent* InputComponent) override;
+
 };
