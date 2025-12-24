@@ -69,4 +69,11 @@ private:
 	FVector Velocity;
 
 	UPrimitiveComponent* RootPhysicsComponent;
+
+	UFUNCTION(BlueprintCallable)
+	void CustomJumpImpulse(const FInputActionValue& value);
+
+	UPROPERTY(EditAnywhere,Category="Jump")
+	float jumpImpulseForce;
+	
 };

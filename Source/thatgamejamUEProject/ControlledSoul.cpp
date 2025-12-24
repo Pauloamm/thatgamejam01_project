@@ -49,8 +49,8 @@ void AControlledSoul::SetupBindActions(APlayerController* currentController)
 {
 	enhancedInputComponent = Cast<UEnhancedInputComponent>(currentController->InputComponent);
 	enhancedInputComponent->BindAction(horizontalMovementAction,ETriggerEvent::Triggered,this,&AControlledSoul::MoveHorizontally);
-	enhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Started,this,&AControlledSoul::Jump);
-	enhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Completed,this,&AControlledSoul::StopJumping);
+	enhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Started,this,&AControlledSoul::CustomJumpImpulse);
+	//enhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Completed,this,&AControlledSoul::StopJumping);
 
 
 }
@@ -86,6 +86,12 @@ void AControlledSoul::OnPushed_Implementation(FVector PushDirection, float Force
 {
 	UE_LOG(LogTemp, Display, TEXT("ControlledSoul pushed! Direction: %s, Force: %f"), 
 	*PushDirection.ToString(), Force);
+
+
+	//Reset velocity
+	float currentVelocityMagnitude = RootPhysicsComponent->GetPhysicsLinearVelocity().Size();
+	RootPhysicsComponent->SetPhysicsLinearVelocity(PushDirection*currentVelocityMagnitude);
+
 	
 	// Apply push to velocity
 	FVector PushVelocity = PushDirection * Force;
@@ -102,5 +108,12 @@ void AControlledSoul::OnPushed_Implementation(FVector PushDirection, float Force
 		3.0f
 	);
 	RootPhysicsComponent->AddImpulse(PushVelocity);
+}
+
+void AControlledSoul::CustomJumpImpulse(const FInputActionValue& value)
+{
+	UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(this->GetRootComponent());
+	PrimitiveComponent->AddImpulse(this->GetActorUpVector()*jumpImpulseForce);
+	
 }
 
