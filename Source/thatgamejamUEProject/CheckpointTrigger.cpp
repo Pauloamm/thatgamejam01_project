@@ -12,6 +12,8 @@ ACheckpointTrigger::ACheckpointTrigger()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
+
 
 }
 
@@ -19,7 +21,9 @@ ACheckpointTrigger::ACheckpointTrigger()
 void ACheckpointTrigger::BeginPlay()
 {
 	Super::BeginPlay();
-	TriggerComponent= GetOwner()->GetComponentByClass<UPrimitiveComponent>();
+	TriggerComponent= this->GetComponentByClass<UPrimitiveComponent>();
+	UE_LOG(LogTemp, Display, TEXT("TRIGGERBOX"));
+
 	TriggerComponent->OnComponentBeginOverlap.AddDynamic(this,&ACheckpointTrigger::OnCheckpointOverlap);
 
 }
@@ -34,8 +38,14 @@ void ACheckpointTrigger::OnCheckpointOverlap(UPrimitiveComponent* thisComponent,
 
 	UE_LOG(LogTemp, Display, TEXT("NOVO CHECKPOINT"));
 
-	AGameModeBase* gamemode = GetWorld()->GetAuthGameMode();
+	AGameModeBase* gamemode = UGameplayStatics::GetGameMode(GetWorld());
 	ACheckpointBasedGamemode* currentGamemode = Cast<ACheckpointBasedGamemode>(gamemode);
+	if (currentGamemode->RespawnTransform == nullptr)
+	{
+		UE_LOG(LogTemp, Display, TEXT("RESPAWN NULO, DANDO VALOR INICIAL"));
+		currentGamemode->RespawnTransform = new FTransform();
+
+	}
 	currentGamemode->RespawnTransform->SetLocation(this->GetActorLocation()); 
 
 	

@@ -100,7 +100,7 @@ UStarFlipbookController::FlipbookDirection UStarFlipbookController::GetFlipbookD
 
 	
 	currentYPos = GetOwner()->GetActorLocation().Y - owner->GetParentActor()->GetActorLocation().Y;
-	UE_LOG(LogTemp, Warning, TEXT("CURRENT RELATIVE STAR Y : %f, last relative star Y: %f "), currentYPos, lastYPos);
+	//UE_LOG(LogTemp, Warning, TEXT("CURRENT RELATIVE STAR Y : %f, last relative star Y: %f "), currentYPos, lastYPos);
 
 	if (fabs(currentYPos - lastYPos) <  2.5f )
 		newDirection = FlipbookDirection::SAME;

@@ -14,12 +14,15 @@ class THATGAMEJAMUEPROJECT_API ACheckpointBasedGamemode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+	
 
 public:
+
+	
 	FTransform* RespawnTransform;
 	
 	UFUNCTION(BlueprintCallable, Category = "CheckpointBasedGamemode")
 	void RespawnPlayerControlledSoul(APlayerController* playerController, AActor* playerActorToDestroy);
-
+	
 
 };

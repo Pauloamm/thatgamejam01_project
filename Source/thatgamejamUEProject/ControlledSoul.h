@@ -68,6 +68,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
+	void KillPlayer();
 
 private:
 	virtual void OnPushed_Implementation(FVector PushDirection, float Force) override;
@@ -86,7 +88,6 @@ private:
 	bool bHasJumped;
 	bool bIsGrounded;
 
-	void KillPlayer();
 
 	
 };

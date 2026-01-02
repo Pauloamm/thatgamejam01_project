@@ -5,14 +5,16 @@
 
 #include "ControlledSoul.h"
 
+
 void ACheckpointBasedGamemode::RespawnPlayerControlledSoul(APlayerController* playerController, AActor* playerActorToDestroy)
 {
-	playerActorToDestroy->Destroy();
+	//playerActorToDestroy->Destroy();
 	UE_LOG(LogTemp, Display, TEXT("PLAYER MORREU"));
 
+	playerActorToDestroy->SetActorTransform(*RespawnTransform);
 	
-	APawn* newPlayerPawn = Cast<APawn>(GetWorld()->SpawnActor(AControlledSoul::StaticClass(),this->RespawnTransform));
-	playerController->Possess(newPlayerPawn);
+	//APawn* newPlayerPawn = Cast<APawn>(GetWorld()->SpawnActor(AControlledSoul::StaticClass(),this->RespawnTransform));
+	//playerController->Possess(newPlayerPawn);
 
 	
 }
