@@ -2,16 +2,22 @@
 
 
 #include "ControlledSoul.h"
+
+#include "CheckpointBasedGamemode.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AControlledSoul::AControlledSoul()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	bHasJumped = false;
+	bIsGrounded = true;
 }
 
 // Called when the game starts or when spawned
@@ -20,8 +26,8 @@ void AControlledSoul::BeginPlay()
 	Super::BeginPlay();
 	RootPhysicsComponent = Cast<UPrimitiveComponent>(this->GetRootComponent());
 	
-	camera = Cast<USceneComponent>(this->GetComponentByClass<UCameraComponent>());
-	camera->AddLocalOffset(cameraOffset);
+	//camera = Cast<USceneComponent>(this->GetComponentByClass<UCameraComponent>());
+	//camera->AddLocalOffset(cameraOffset);
 	
 	
 	AController* thisPawnController = GetController(); // gets controller controlling this pawn
@@ -67,11 +73,44 @@ void AControlledSoul::MoveHorizontally(const FInputActionValue& value)
 	
 }
 
+void AControlledSoul::RaycastForGroundChecking()
+{
+	FHitResult groundHitResult;
+	
+	FVector downVector = this->GetActorUpVector()*-1;
+	FVector endRaycastPoint = this->GetActorLocation() + downVector*raycastLength;
+
+	FCollisionQueryParams queryParams;
+	queryParams.AddIgnoredActor(this);
+
+	this->bIsGrounded = GetWorld()->LineTraceSingleByChannel(
+	   groundHitResult,
+	   this->GetActorLocation(),
+	   endRaycastPoint,
+	   ECC_WorldDynamic,
+	   queryParams
+   );
+
+
+	if (bIsGrounded)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("acertou no objeto: %s"),*groundHitResult.GetActor()->GetName());
+		bHasJumped = false;
+	}
+		
+	
+	DrawDebugLine(GetWorld(), this->GetActorLocation(),  endRaycastPoint, bIsGrounded ? FColor::Green : FColor::Red, false, 2.f, 0, 2.f);
+
+}
+
 
 // Called every frame
 void AControlledSoul::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bHasJumped)
+	RaycastForGroundChecking();
 
 }
 
@@ -81,6 +120,7 @@ void AControlledSoul::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
 
 void AControlledSoul::OnPushed_Implementation(FVector PushDirection, float Force)
 {
@@ -112,8 +152,23 @@ void AControlledSoul::OnPushed_Implementation(FVector PushDirection, float Force
 
 void AControlledSoul::CustomJumpImpulse(const FInputActionValue& value)
 {
+	if (bHasJumped) return; // dont jump if already jumped once
+	
 	UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(this->GetRootComponent());
 	PrimitiveComponent->AddImpulse(this->GetActorUpVector()*jumpImpulseForce);
+
+	bHasJumped = true;
+	bIsGrounded = false;
 	
 }
+
+void AControlledSoul::KillPlayer()
+{
+	ACheckpointBasedGamemode* gamemode = Cast<ACheckpointBasedGamemode> (UGameplayStatics::GetGameMode(GetWorld()));
+	gamemode->RespawnPlayerControlledSoul(Cast<APlayerController>(this->GetController()),this);
+	
+}
+
+
+
 

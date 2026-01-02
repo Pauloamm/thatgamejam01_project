@@ -10,7 +10,7 @@ public class thatgamejamUEProject : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "EnhancedInput", "GameplayDebugger" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "EnhancedInput", "GameplayDebugger", "Paper2D" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

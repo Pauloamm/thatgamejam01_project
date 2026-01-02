@@ -43,6 +43,12 @@ protected:
 
 	UFUNCTION()
 	virtual void MoveHorizontally(const FInputActionValue& value);
+
+	//Raycast grounded
+	UFUNCTION()
+	virtual void RaycastForGroundChecking();
+	UPROPERTY(EditAnywhere,Category="Ground Checking")
+	float raycastLength;
 	
 
 
@@ -62,6 +68,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+
 private:
 	virtual void OnPushed_Implementation(FVector PushDirection, float Force) override;
 
@@ -75,5 +82,11 @@ private:
 
 	UPROPERTY(EditAnywhere,Category="Jump")
 	float jumpImpulseForce;
+
+	bool bHasJumped;
+	bool bIsGrounded;
+
+	void KillPlayer();
+
 	
 };

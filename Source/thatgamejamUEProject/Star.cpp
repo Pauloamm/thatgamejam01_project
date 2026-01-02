@@ -132,10 +132,10 @@ void AStar::ChangeStarPosition(float DeltaTime)
 	
     FVector thisFrameMoveDirection = finalPosition-GetActorLocation();
 	
-	if (thisFrameMoveDirection.Size() <arrivedRadius) return;// if clsoe enough dont process anything else, no need to move this frame
-	
-	thisFrameMoveDirection.Normalize();
-	thisFrameMoveDirection = thisFrameMoveDirection*DeltaTime*starSpeed;
+	//if (thisFrameMoveDirection.Size() <arrivedRadius) return;// if clsoe enough dont process anything else, no need to move this frame
+	//
+	//thisFrameMoveDirection.Normalize();
+	//thisFrameMoveDirection = thisFrameMoveDirection*DeltaTime*starSpeed;
 	SetActorLocation(GetActorLocation() + thisFrameMoveDirection);
 	
 }
