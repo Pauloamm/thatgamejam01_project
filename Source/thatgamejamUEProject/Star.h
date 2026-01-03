@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "BaseAbility.h"
 #include "InputAction.h"
+#include "NiagaraComponent.h"
+
 #include "GameFramework/Actor.h"
 #include "Star.generated.h"
 
@@ -48,7 +50,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Star Speed")
 	float arrivedRadius;
 
+
+	
 	FVector* mousePosition;
+
+
+	//Niagara system
+	UPROPERTY(EditAnywhere, Category = "Beam")
+	UNiagaraComponent* BeamComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Beam")
+	UNiagaraSystem* BeamSystem;
+
 	
 public:	
 	// Called every frame

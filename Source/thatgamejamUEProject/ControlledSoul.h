@@ -22,6 +22,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	float horizontalMoveSpeed;
+
 	UPROPERTY()
 	UEnhancedInputComponent* enhancedInputComponent;
 
@@ -44,6 +47,9 @@ protected:
 	UFUNCTION()
 	virtual void MoveHorizontally(const FInputActionValue& value);
 
+	UPROPERTY(EditAnywhere, Category="Movement")
+	float maxSpeedForClamping;
+
 	//Raycast grounded
 	UFUNCTION()
 	virtual void RaycastForGroundChecking();
@@ -64,6 +70,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
@@ -86,8 +93,11 @@ private:
 	float jumpImpulseForce;
 
 	bool bHasJumped;
+	bool bHasJumpedTwice;
 	bool bIsGrounded;
 
-
+	//Jump cooldown
+	float coolDownBetweenJumps;
+	float currentCooldownTime;
 	
 };

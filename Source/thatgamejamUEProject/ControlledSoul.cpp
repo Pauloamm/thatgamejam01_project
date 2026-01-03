@@ -17,7 +17,11 @@ AControlledSoul::AControlledSoul()
 	PrimaryActorTick.bCanEverTick = true;
 
 	bHasJumped = false;
+	bHasJumpedTwice = false;
 	bIsGrounded = true;
+
+	coolDownBetweenJumps=0.25f;
+	currentCooldownTime=0.25f;
 }
 
 // Called when the game starts or when spawned
@@ -25,9 +29,9 @@ void AControlledSoul::BeginPlay()
 {
 	Super::BeginPlay();
 	RootPhysicsComponent = Cast<UPrimitiveComponent>(this->GetRootComponent());
+
+
 	
-	//camera = Cast<USceneComponent>(this->GetComponentByClass<UCameraComponent>());
-	//camera->AddLocalOffset(cameraOffset);
 	
 	
 	AController* thisPawnController = GetController(); // gets controller controlling this pawn
@@ -35,10 +39,12 @@ void AControlledSoul::BeginPlay()
 	
 	this->SetupMappingContext(currentController);
 	this->SetupBindActions(currentController);
+
+
+	ACheckpointBasedGamemode* gamemode = Cast<ACheckpointBasedGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
+	gamemode->RespawnTransform = new FTransform();
+	gamemode->RespawnTransform->SetLocation(this->GetActorLocation());
 	
-	
-	
-	//enhancedInputComponent->BindAction();
 }
 
 
@@ -65,8 +71,9 @@ void AControlledSoul::MoveHorizontally(const FInputActionValue& value)
 {
 	float horizontalMovementDirection = value.Get<float>();
 
+	float deltaTime = UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
 	FVector currentLocation = this->GetActorLocation();
-	FVector newLocation = FVector(currentLocation.X,currentLocation.Y + horizontalMovementDirection,currentLocation.Z);
+	FVector newLocation = FVector(currentLocation.X,currentLocation.Y + horizontalMovementDirection*horizontalMoveSpeed*deltaTime,currentLocation.Z);
 	this->SetActorLocation(newLocation);
 	
 
@@ -96,6 +103,8 @@ void AControlledSoul::RaycastForGroundChecking()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("acertou no objeto: %s"),*groundHitResult.GetActor()->GetName());
 		bHasJumped = false;
+		bHasJumpedTwice = false;
+		currentCooldownTime = 0.0f;
 	}
 		
 	
@@ -109,10 +118,36 @@ void AControlledSoul::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
+	
+	FVector currentVelocity =  RootPhysicsComponent->GetPhysicsLinearVelocity();
+	float currentVelocityMagnitude =currentVelocity.Size();
+	currentVelocity.Normalize();
+	UE_LOG(LogTemp, Display, TEXT("CURRENT LINEAR VELOCITY: %f"), currentVelocityMagnitude);
+
+	//check if velocity too fast clamp it
+	if (currentVelocityMagnitude > maxSpeedForClamping)
+	{
+		RootPhysicsComponent->SetPhysicsLinearVelocity(currentVelocity*maxSpeedForClamping);
+		UE_LOG(LogTemp, Display, TEXT("GOING TOO FAST,WE CLAMP IT"));
+
+	}
+
+	
 	if (bHasJumped)
-	RaycastForGroundChecking();
+	{
+		currentCooldownTime += DeltaTime;
+	}
+
+	bool hasPassedJumpCooldownTime = currentCooldownTime >= coolDownBetweenJumps;
+	if (hasPassedJumpCooldownTime)
+	{
+		RaycastForGroundChecking();
+	}
+	
 
 }
+
 
 // Called to bind functionality to input
 void AControlledSoul::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -152,12 +187,18 @@ void AControlledSoul::OnPushed_Implementation(FVector PushDirection, float Force
 
 void AControlledSoul::CustomJumpImpulse(const FInputActionValue& value)
 {
-	if (bHasJumped) return; // dont jump if already jumped once
 	
-	UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(this->GetRootComponent());
-	PrimitiveComponent->AddImpulse(this->GetActorUpVector()*jumpImpulseForce);
+	bool CanSecondJump = bHasJumped && currentCooldownTime >= coolDownBetweenJumps;
+	
+	if (bHasJumpedTwice || (!CanSecondJump & bHasJumped))  return; // dont jump if already jumped twice or if on cooldown
 
+	FVector currentVelocity = RootPhysicsComponent->GetPhysicsLinearVelocity();
+	RootPhysicsComponent->SetPhysicsLinearVelocity(FVector(currentVelocity.X, currentVelocity.Y, 0));
+	RootPhysicsComponent->AddImpulse(this->GetActorUpVector()*jumpImpulseForce);
+
+	if (bHasJumped) bHasJumpedTwice = true;
 	bHasJumped = true;
+	
 	bIsGrounded = false;
 	
 }

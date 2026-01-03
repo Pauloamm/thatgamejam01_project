@@ -7,6 +7,8 @@
 #include "EnhancedInputComponent.h"
 #include "MaterialHLSLTree.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+
 
 // Sets default values
 AStar::AStar()
@@ -21,6 +23,20 @@ void AStar::BeginPlay()
 {
 	Super::BeginPlay();
 
+
+	//if (BeamSystem)
+	//{
+	//	BeamComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+	//		BeamSystem,
+	//		GetRootComponent(),
+	//		NAME_None,
+	//		FVector::ZeroVector,
+	//		FRotator::ZeroRotator,
+	//		EAttachLocation::KeepRelativeOffset,
+	//		true
+	//	);
+	//}
+	
 	playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 	enhancedInputComponent = (UEnhancedInputComponent*)playerController->InputComponent;
@@ -145,6 +161,12 @@ void AStar::ChangeStarPosition(float DeltaTime)
 void AStar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	// Update niagara system
+	//BeamComponent->SetVectorParameter("StartPosition",this->GetActorLocation());
+	//BeamComponent->SetVectorParameter("EndPosition",GetParentActor()->GetActorLocation());
+
+	
 	// Only update position if NOT locked
 	if (!bIsLockedInPlace)
 	{
