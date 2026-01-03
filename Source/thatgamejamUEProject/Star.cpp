@@ -24,18 +24,18 @@ void AStar::BeginPlay()
 	Super::BeginPlay();
 
 
-	//if (BeamSystem)
-	//{
-	//	BeamComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
-	//		BeamSystem,
-	//		GetRootComponent(),
-	//		NAME_None,
-	//		FVector::ZeroVector,
-	//		FRotator::ZeroRotator,
-	//		EAttachLocation::KeepRelativeOffset,
-	//		true
-	//	);
-	//}
+	if (BeamSystem)
+	{
+		BeamComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			BeamSystem,
+			GetRootComponent(),
+			NAME_None,
+			FVector::ZeroVector,
+		FRotator::ZeroRotator,
+		EAttachLocation::KeepRelativeOffset,
+			true
+		);
+	}
 	
 	playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
@@ -163,8 +163,8 @@ void AStar::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	// Update niagara system
-	//BeamComponent->SetVectorParameter("StartPosition",this->GetActorLocation());
-	//BeamComponent->SetVectorParameter("EndPosition",GetParentActor()->GetActorLocation());
+	BeamComponent->SetVectorParameter("StartPosition",this->GetActorLocation());
+	BeamComponent->SetVectorParameter("EndPosition",GetParentActor()->GetActorLocation());
 
 	
 	// Only update position if NOT locked

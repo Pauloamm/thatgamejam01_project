@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseAbility.h"
+#include"NiagaraSystem.h"
 #include "PushAroundAbility.generated.h"
 
 /**
@@ -30,6 +31,9 @@ private:
 	float PushForce;
 
 	void PushActor(AActor* actorToPush) const;
+
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	UNiagaraSystem* PushEffect;
 public:
 	virtual void BindInput_Implementation(UEnhancedInputComponent* InputComponent) override;
 

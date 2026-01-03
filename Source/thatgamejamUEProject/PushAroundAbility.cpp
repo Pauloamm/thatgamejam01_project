@@ -4,6 +4,7 @@
 #include "PushAroundAbility.h"
 
 #include "EnhancedInputComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Pushable.h"
 
 
@@ -25,6 +26,22 @@ void UPushAroundAbility::ActivateAbility_Implementation(const FInputActionValue&
 
 	this->CurrentCooldownTimer = 0;
 	FVector centerPushLocation = starActor->GetActorLocation();
+
+	// Spawn Niagara effect
+	if (PushEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			PushEffect,
+			centerPushLocation,
+			FRotator::ZeroRotator,
+			FVector(1.f),
+			true,
+			true,
+			ENCPoolMethod::None,
+			true
+		);
+	}
 	
 	// Setup collision query
 	FCollisionShape Sphere = FCollisionShape::MakeSphere(this->PushRadius);

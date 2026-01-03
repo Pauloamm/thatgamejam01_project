@@ -21,7 +21,7 @@ AControlledSoul::AControlledSoul()
 	bIsGrounded = true;
 
 	coolDownBetweenJumps=0.25f;
-	currentCooldownTime=0.25f;
+	currentCooldownTime=0.26f;
 }
 
 // Called when the game starts or when spawned
@@ -29,10 +29,7 @@ void AControlledSoul::BeginPlay()
 {
 	Super::BeginPlay();
 	RootPhysicsComponent = Cast<UPrimitiveComponent>(this->GetRootComponent());
-
-
-	
-	
+	RootPhysicsComponent->OnComponentHit.AddDynamic(this,&AControlledSoul::OnPlayerCollision);
 	
 	AController* thisPawnController = GetController(); // gets controller controlling this pawn
 	APlayerController* currentController = Cast<APlayerController>(thisPawnController);// cast down to player controller
@@ -71,6 +68,14 @@ void AControlledSoul::MoveHorizontally(const FInputActionValue& value)
 {
 	float horizontalMovementDirection = value.Get<float>();
 
+
+	// Store for animation
+	if (horizontalMovementDirection != 0.f)
+	{
+		LastInputDirection = horizontalMovementDirection;
+	}
+
+	
 	float deltaTime = UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
 	FVector currentLocation = this->GetActorLocation();
 	FVector newLocation = FVector(currentLocation.X,currentLocation.Y + horizontalMovementDirection*horizontalMoveSpeed*deltaTime,currentLocation.Z);
@@ -105,6 +110,8 @@ void AControlledSoul::RaycastForGroundChecking()
 		bHasJumped = false;
 		bHasJumpedTwice = false;
 		currentCooldownTime = 0.0f;
+
+		RootPhysicsComponent->SetPhysicsLinearVelocity(FVector(0,0,0));
 	}
 		
 	
@@ -112,6 +119,16 @@ void AControlledSoul::RaycastForGroundChecking()
 
 }
 
+
+void AControlledSoul::OnPlayerCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	UE_LOG(LogTemp, Display, TEXT("bateu em alguma merda"));
+
+	RaycastForGroundChecking();
+
+		
+}
 
 // Called every frame
 void AControlledSoul::Tick(float DeltaTime)
@@ -123,7 +140,7 @@ void AControlledSoul::Tick(float DeltaTime)
 	FVector currentVelocity =  RootPhysicsComponent->GetPhysicsLinearVelocity();
 	float currentVelocityMagnitude =currentVelocity.Size();
 	currentVelocity.Normalize();
-	UE_LOG(LogTemp, Display, TEXT("CURRENT LINEAR VELOCITY: %f"), currentVelocityMagnitude);
+	//UE_LOG(LogTemp, Display, TEXT("CURRENT LINEAR VELOCITY: %f"), currentVelocityMagnitude);
 
 	//check if velocity too fast clamp it
 	if (currentVelocityMagnitude > maxSpeedForClamping)

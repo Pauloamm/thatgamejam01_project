@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "PaperFlipbookComponent.h"
+#include "ControlledSoul.h"
+
 
 #include "CharacterFlipbookController.generated.h"
 
@@ -47,7 +49,7 @@ private:
 		LEFT
 	} directionToChangeFlipbook;
 	
-	AActor* owner;
+	AControlledSoul* owner;
 	float OriginalXScale;
 	float lastYPos;
 	float currentYPos;

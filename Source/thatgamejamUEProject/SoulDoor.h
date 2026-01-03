@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "SoulDoor.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorOpened);
+
 UCLASS()
 class THATGAMEJAMUEPROJECT_API ASoulDoor : public AActor
 {
@@ -12,25 +14,29 @@ class THATGAMEJAMUEPROJECT_API ASoulDoor : public AActor
 public:
 	ASoulDoor();
 
+	UPROPERTY(BlueprintAssignable, Category = "Door")
+	FOnDoorOpened OnDoorOpened;
+
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, Category = "Door")
 	int32 DoorIndex = 0;
 
 	UPROPERTY(EditAnywhere, Category = "Door")
-	FVector OpenOffset = FVector(0, 0, 300);
+	float OpenDuration = 0.5f;
 
 	UPROPERTY(EditAnywhere, Category = "Door")
-	float OpenDuration = 1.0f;
-
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* DoorMesh;
+	float SlideDistance = 200.f;
 
 private:
+	bool bIsOpening = false;
+	float Progress = 0.f;
 	FVector ClosedLocation;
-	bool bIsOpen = false;
 
 	UFUNCTION()
 	void OnThresholdReached(int32 Index);
+
+	void Open();
 };

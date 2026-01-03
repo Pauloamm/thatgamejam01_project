@@ -3,9 +3,6 @@
 
 #include "CharacterFlipbookController.h"
 
-#include "SWarningOrErrorBox.h"
-#include "GameFramework/Character.h"
-#include "GameFramework/PawnMovementComponent.h"
 
 // Sets default values for this component's properties
 UCharacterFlipbookController::UCharacterFlipbookController()
@@ -24,7 +21,7 @@ void UCharacterFlipbookController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	owner = GetOwner();
+	owner = Cast<AControlledSoul>( GetOwner());
 	flipbook = Cast<UPaperFlipbookComponent>(owner->GetComponentByClass(UPaperFlipbookComponent::StaticClass()));
 	lastYPos = GetOwner()->GetActorLocation().Y;
 	OriginalXScale = flipbook->GetRelativeScale3D().X;
@@ -42,31 +39,27 @@ void UCharacterFlipbookController::TickComponent(float DeltaTime, ELevelTick Tic
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	
-	FlipbookDirection currentDirectionForFlipbook = GetFlipbookDirectionToChange();
+		float InputDir = owner->GetLastInputDirection();
+        
+		FVector currentFlipbookScale = flipbook->GetComponentScale();
+        
+		if (InputDir > 0.f)
+		{
+			flipbook->SetWorldScale3D(FVector(OriginalXScale, currentFlipbookScale.Y, currentFlipbookScale.Z));
+		}
+		else if (InputDir < 0.f)
+		{
+			flipbook->SetWorldScale3D(FVector(OriginalXScale * -1, currentFlipbookScale.Y, currentFlipbookScale.Z));
+		}
+		// If InputDir == 0, keep current facing
+	
 
-	FVector currentFlipbookScale = flipbook->GetComponentScale();	
-
-	switch (currentDirectionForFlipbook)
-	{
-		case FlipbookDirection::RIGHT:
-		flipbook->SetWorldScale3D(FVector(OriginalXScale,currentFlipbookScale.Y , currentFlipbookScale.Z)); // positive
-		break;
-		
-		case FlipbookDirection::LEFT:
-		flipbook->SetWorldScale3D(FVector(OriginalXScale * -1,currentFlipbookScale.Y, currentFlipbookScale.Z)); // negative
-		break;
-		
-		default:
-		flipbook->SetWorldScale3D(FVector(currentFlipbookScale.X, currentFlipbookScale.Y, currentFlipbookScale.Z)); // negative
-		break;
-	}
-
+	// Animation state based on Z velocity
 	float currentZVelocity = owner->GetVelocity().Z;
-	if (currentZVelocity > FLT_EPSILON || currentZVelocity < -FLT_EPSILON) // is in air
+	if (currentZVelocity > FLT_EPSILON || currentZVelocity < -FLT_EPSILON)
 		flipbook->SetFlipbook(floatingAnimation);
 	else
 		flipbook->SetFlipbook(walkingAnimation);
-
 		
 	
 }

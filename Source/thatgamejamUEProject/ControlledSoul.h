@@ -65,6 +65,9 @@ protected:
 	UPROPERTY(EditAnywhere,Category="Camera")
 	FVector cameraOffset;
 
+	//Collider
+	UFUNCTION(blueprintCallable)
+	void OnPlayerCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	
 public:	
@@ -78,12 +81,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void KillPlayer();
 
+	UFUNCTION(BlueprintCallable)
+	float GetLastInputDirection() const { return LastInputDirection; }
+
 private:
 	virtual void OnPushed_Implementation(FVector PushDirection, float Force) override;
 
 	UPROPERTY(EditAnywhere, Category="Speed")
 	FVector Velocity;
 
+	UPROPERTY(EditAnywhere, Category="Speed")
 	UPrimitiveComponent* RootPhysicsComponent;
 
 	UFUNCTION(BlueprintCallable)
@@ -99,5 +106,8 @@ private:
 	//Jump cooldown
 	float coolDownBetweenJumps;
 	float currentCooldownTime;
+
+	float LastInputDirection = 0.f;
+
 	
 };

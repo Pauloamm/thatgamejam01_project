@@ -1,48 +1,76 @@
 #include "SoulDoor.h"
 #include "LostSoulsManager.h"
-#include "Kismet/GameplayStatics.h"
 
 ASoulDoor::ASoulDoor()
 {
-	PrimaryActorTick.bCanEverTick = false;
-
-	DoorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorMesh"));
-	RootComponent = DoorMesh;
+	PrimaryActorTick.bCanEverTick = true;
+	bIsOpening = false;
 }
 
 void ASoulDoor::BeginPlay()
 {
 	Super::BeginPlay();
+
 	ClosedLocation = GetActorLocation();
 
 	if (ALostSoulsManager* Manager = ALostSoulsManager::Get(GetWorld()))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ENCONTROU MANAGER E ADICIONOU LISTENER"));
+
 		Manager->OnDoorThresholdReached.AddDynamic(this, &ASoulDoor::OnThresholdReached);
 	}
 }
 
 void ASoulDoor::OnThresholdReached(int32 Index)
 {
-	if (Index != DoorIndex || bIsOpen)
-		return;
+	UE_LOG(LogTemp, Warning, TEXT("Received Index: %d, My DoorIndex: %d, bIsOpening: %s"), 
+	   Index, DoorIndex, bIsOpening ? TEXT("true") : TEXT("false"));
 
-	bIsOpen = true;
-
-	// Simple lerp - for jam, you could also just SetActorLocation instantly
-	FVector TargetLocation = ClosedLocation + OpenOffset;
+	if (Index == DoorIndex)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Index matches!"));
+	}
     
-	// Using a timeline or latent action would be cleaner, 
-	// but for a jam this quick approach works:
-	FLatentActionInfo LatentInfo;
-	LatentInfo.CallbackTarget = this;
-	UKismetSystemLibrary::MoveComponentTo(
-		DoorMesh, 
-		TargetLocation, 
-		GetActorRotation(),
-		false, false, 
-		OpenDuration, 
-		false,
-		EMoveComponentAction::Move,
-		LatentInfo
-	);
+	if (!bIsOpening)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Not opening yet!"));
+	}
+
+	if (Index == DoorIndex && !bIsOpening)
+	{
+		Open();
+	}
+
+	if (Index == DoorIndex && !bIsOpening)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HORA DE ABRIR"));
+
+		Open();
+	}
+}
+
+void ASoulDoor::Open()
+{
+	OnDoorOpened.Broadcast();
+	Progress = 0.f;
+	bIsOpening = true;
+}
+
+void ASoulDoor::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (!bIsOpening) return;
+
+	Progress += DeltaTime / OpenDuration;
+
+	if (Progress >= 1.f)
+	{
+		SetActorLocation(ClosedLocation + FVector(SlideDistance, 0.f, 0.f));
+		bIsOpening = false;
+		return;
+	}
+
+	float Alpha = FMath::InterpEaseOut(0.f, 1.f, Progress, 2.f);
+	SetActorLocation(ClosedLocation + FVector(SlideDistance * Alpha, 0.f, 0.f));
 }

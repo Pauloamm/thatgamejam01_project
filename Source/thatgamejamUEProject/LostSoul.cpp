@@ -6,7 +6,7 @@
 
 ALostSoul::ALostSoul()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = true;	
 
 }
 
