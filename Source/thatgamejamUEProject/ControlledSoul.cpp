@@ -59,7 +59,6 @@ void AControlledSoul::SetupBindActions(APlayerController* currentController)
 	enhancedInputComponent = Cast<UEnhancedInputComponent>(currentController->InputComponent);
 	enhancedInputComponent->BindAction(horizontalMovementAction,ETriggerEvent::Triggered,this,&AControlledSoul::MoveHorizontally);
 	enhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Started,this,&AControlledSoul::CustomJumpImpulse);
-	//enhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Completed,this,&AControlledSoul::StopJumping);
 
 
 }
@@ -75,7 +74,9 @@ void AControlledSoul::MoveHorizontally(const FInputActionValue& value)
 		LastInputDirection = horizontalMovementDirection;
 	}
 
-	
+
+	FVector currentLinearVelocity = RootPhysicsComponent->GetPhysicsLinearVelocity();
+	RootPhysicsComponent->SetPhysicsLinearVelocity(FVector(currentLinearVelocity.X,0.0f,currentLinearVelocity.Z));// 
 	float deltaTime = UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
 	FVector currentLocation = this->GetActorLocation();
 	FVector newLocation = FVector(currentLocation.X,currentLocation.Y + horizontalMovementDirection*horizontalMoveSpeed*deltaTime,currentLocation.Z);
